@@ -6,6 +6,8 @@ import { ApiError } from "../../lib/api-errors";
 import { clearUnauthenticatedSession } from "../../lib/session";
 import { logger } from "../../lib/logger";
 import { CURRENT_USER_STORAGE_KEY } from "../../hooks/useCurrentUser";
+import { auth } from "../../i18n/auth";
+import { localize } from "../../i18n/locale";
 
 interface SignInFormData {
     email: string;
@@ -45,13 +47,13 @@ export function SignInForm() {
         const newErrors: SignInFormErrors = {};
 
         if (!formData.email.trim()) {
-            newErrors.email = "Email address is required";
+            newErrors.email = localize(auth.emailRequired);
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-            newErrors.email = "Please enter a valid email address";
+            newErrors.email = localize(auth.emailInvalid);
         }
 
         if (!formData.password) {
-            newErrors.password = "Password is required";
+            newErrors.password = localize(auth.passwordRequired);
         }
 
         setErrors(newErrors);
@@ -95,10 +97,10 @@ export function SignInForm() {
         } catch (err: unknown) {
             const message =
                 err instanceof ApiError && err.status === 401
-                    ? "Invalid email or password"
+                    ? localize(auth.invalidCredentials)
                     : err instanceof Error
                     ? err.message
-                    : "Failed to sign in. Please try again.";
+                    : localize(auth.signInFailed);
             setErrors((prev) => ({ ...prev, submit: message }));
         } finally {
             setIsLoading(false);
@@ -112,7 +114,7 @@ export function SignInForm() {
     return (
         <div className="w-full">
             <h2 className="text-2xl font-bold text-gray-900 text-center mb-6">
-                Welcome Pet Lover!
+                {localize(auth.welcome)}
             </h2>
 
             {/* Pending-action hint banner */}
@@ -121,13 +123,13 @@ export function SignInForm() {
                     role="status"
                     className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-xl text-sm text-orange-700 text-center"
                 >
-                    Sign in to continue: <strong>{pendingActionHint}</strong>
+                    {localize(auth.pendingAction)} <strong>{pendingActionHint}</strong>
                 </div>
             )}
 
             <div className="flex flex-col gap-5">
                 <GoogleButton
-                    label="Continue with Google"
+                    label={localize(auth.continueWithGoogle)}
                     onClick={handleGoogleSignIn}
                 />
 
@@ -146,9 +148,9 @@ export function SignInForm() {
 
                     <FormInput
                         id="email"
-                        label="Email Address"
+                        label={localize(auth.emailLabel)}
                         type="email"
-                        placeholder="Enter your email address"
+                        placeholder={localize(auth.emailPlaceholder)}
                         autoComplete="email"
                         value={formData.email}
                         onChange={(e) => handleChange("email", e.target.value)}
@@ -158,8 +160,8 @@ export function SignInForm() {
                     <div className="flex flex-col gap-1">
                         <PasswordInput
                             id="password"
-                            label="Password"
-                            placeholder="Create your password"
+                            label={localize(auth.passwordLabel)}
+                            placeholder={localize(auth.passwordPlaceholder)}
                             value={formData.password}
                             onChange={(value) => handleChange("password", value)}
                             error={errors.password}
@@ -169,21 +171,21 @@ export function SignInForm() {
                                 to="/forgot-password"
                                 className="text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors"
                             >
-                                Forget Password?
+                                {localize(auth.forgotPassword)}
                             </Link>
                         </div>
                     </div>
 
-                    <SubmitButton label="Sign In" isLoading={isLoading} />
+                    <SubmitButton label={localize(auth.signIn)} isLoading={isLoading} />
                 </form>
 
                 <p className="text-center text-sm text-gray-600 mt-2">
-                    Don&apos;t have an account?{" "}
+                    {localize(auth.noAccount)}{" "}
                     <Link
                         to="/register"
                         className="font-semibold text-[#E84D2A] hover:underline"
                     >
-                        Create Account
+                        {localize(auth.createAccount)}
                     </Link>
                 </p>
             </div>
